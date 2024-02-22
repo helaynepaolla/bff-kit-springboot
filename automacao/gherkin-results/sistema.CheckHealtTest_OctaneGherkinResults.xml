@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features version="1">
+    <feature name="This feature is to check GET API" path="Features/Exemplo.feature" started="1619637281722"
+             tag="@TID134029REV0.2.0">
+        <file><![CDATA[#Auto generated Octane revision tag
+@TID134029REV0.2.0
+Feature: This feature is to check GET API
+ 
+  Scenario Outline: Verifique se o usuario pode enviar uma solicitacao GET
+    Given que eu quero executar um servico no ambiente
+    When envio a solicitacao GET
+    Then valido o codigo de status <statuscode>
+ 
+    Examples:
+      | statuscode |
+      |        200 |]]></file>
+        <scenarios>
+            <scenario name="Verifique se o usuario pode enviar uma solicitacao GET" outlineIndex="1">
+                <steps>
+                    <step duration="346955247" name="Given que eu quero executar um servico no ambiente"
+                          status="passed"/>
+                    <step duration="5985234315" name="When envio a solicitacao GET" status="passed"/>
+                    <step duration="4597504" name="Then valido o codigo de status 200" status="passed"/>
+                </steps>
+            </scenario>
+        </scenarios>
+    </feature>
+</features>

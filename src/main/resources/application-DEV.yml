@@ -1,0 +1,36 @@
+base:
+  urlPrefix: http://
+  urlSufix: bff-kit-springboot.pfl2.svc.cluster.local:8080
+
+# INICIO - Mapeamento Feign de funcionalidades POR AMBIENTE
+feign:
+  funcionalidadeExemplo:
+    name: funcionalidadeExemplo
+    url: ${ENV_SRV_KIT_SPRINGBOOT:http://srv-kit-springboot.pfl2.svc.cluster.local:8080}
+    consultaSucesso:
+      path: /v1/sample-get-call
+    consultaErroInfra:
+      path: /v1/sample-error-call
+    consultaErroBusiness:
+      path: /v1/sample-business-error-call
+  livrariaService:
+    name: livrariaService
+    url: ${ENV_SRV_LIVRARIA:http://localhost:8087/srv-kit-springboot}
+    get:
+      path: /v1/consulta-livros
+    getbyId:
+      path: /v1/consulta-livro
+    create:
+      path: /v1/cadastrar-livro
+    delete:
+      path: /v1/deleta-livro
+# FIM - Mapeamento Feign de funcionalidades POR AMBIENTE
+
+#INICIO - Springfox - Swagger
+springfox:
+  documentation:
+    enabled: true
+    swagger:
+      v2:
+        path: /api-docs
+#FIM - Springfox - Swagger

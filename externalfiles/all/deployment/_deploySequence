@@ -1,0 +1,4 @@
+configmap.yml
+secret.yml
+deployment.yml
+hpa.yml

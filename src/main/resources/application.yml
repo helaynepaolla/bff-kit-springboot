@@ -1,0 +1,196 @@
+# Arquivo com configuracoes GLOBAIS, independentemente de ambiente
+# Estas configuracoes sempre serao carregdas primeiro, independentemente do profile escolhido
+# Eh possivel sobreescrever configuracao(oes) utilizando outros arquivos application-<profile>.yml
+
+# INICIO - CORE PROPERTIES
+# https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html#core-properties
+info:
+  app:
+    name: '@project.name@'
+    description: '@project.description@'
+    version: '@project.version@'
+
+# INICIO - SERVER PROPERTIES
+# https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.server
+server:
+  max-http-header-size: 40KB
+  port: ${SERVER_PORT:8080}
+  servlet:
+    contextPath: /
+  parallelism: ${SERVER_PARALELISM:200}
+# FIM - SERVER PROPERTIES
+
+# INICIO - Configuracao okhttpclient
+okhttp-configuracao-geral:
+  #https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/connect-timeout/
+  connect-timeout-millis: ${ENV_HTTPCLIENT_CONFIG_DEFAULT_CONNECT_TIMEOUT:7000}
+  #https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/read-timeout/
+  read-timeout-millis: ${ENV_HTTPCLIENT_CONFIG_DEFAULT_READ_TIMEOUT:7000}
+  #https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/write-timeout/
+  write-timeout-millis: ${ENV_HTTPCLIENT_CONFIG_DEFAULT_WRITE_TIMEOUT:7000}
+  #https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/retry-on-connection-failure/
+  retryOnConnectionFailure: ${ENV_HTTPCLIENT_CONFIG_DEFAULT_RETRY:true}
+# FIM - Configuracao okhttpclient
+
+# INICIO - Configuracao ConnectionPool okhttpclient
+# https://square.github.io/okhttp/3.x/okhttp/okhttp3/ConnectionPool.html
+okhttp-connection-pool:
+  #Default maxIdleConnections default 5
+  max-idle-connections: ${ENV_OKHTTPCLIENT_POOL_MAX_IDLE_CONNECTIONS:20}
+  #Default keepAliveTime - default 60seg
+  keep-alive-duration-segundos: ${ENV_OKHTTPCLIENT_POOL_KEEP_ALIVE_DURATION_SEGUNDOS:60}
+# FIM - Configuracao ConnectionPool okhttpclient
+
+# INICIO - Spring Cloud - Open Feign
+# https://docs.spring.io/spring-cloud-openfeign/docs/current/reference/html/appendix.html
+
+# Configs de timeout padrão. Estão definidas dentro do arquivo .env do ambiente em externalfiles
+# Esta configuração será aplicada a todos os clientes que não tenham config de timeout
+# Importante entender a diferença entre connectTimeout e readTimeout
+# Para maiores informaçôes consultar o tópico de Confiabilidade no Checklist de Microserviços de SRE:
+# https://confluence.bradesco.com.br:8443/pages/viewpage.action?pageId=207620242#id-3.Checklistboaspr%C3%A1ticasmicroservices-5-TimeoutePooldeConex%C3%B5es-Conex%C3%B5esHTTP,JDBC,CWS,FilaeEventStream
+feign:
+  httpclient:
+    enabled: false
+    #Default Feign - feign.httpclient.max-connections: 200
+    max-connections: ${FEIGN_HTTPCLIENT_MAX_CONNECTIONS:200}
+    #Default Feign - feign.httpclient.max-connections-per-route: 50
+    max-connections-per-route: ${FEIGN_HTTPCLIENT_MAX_CONNECTIONS_PER_ROUTE:50}
+    #Default Feign - feign.httpclient.connection-timer-repeat: 3000
+    connection-timer-repeat: ${FEIGN_HTTPCLIENT_CONNECTION_TIME_REQUEST:3000}
+    ok-http:
+      #Default Feign - feign.httpclient.ok-http.read-timeout: 60seg
+      read-timeout: ${FEIGN_HTTPCLIENT_OKHTTP_DEFAULT_READ_TIMEOUT:60}
+  client:
+    config:
+      default:
+        # Configs de timeout padrão. Estão definidas dentro do arquivo .env do ambiente em externalfiles
+        # Esta configuração será aplicada a todos os clientes que não tenham config de timeout
+        # Importante entender a diferença entre connectTimeout e readTimeout
+
+        # Para maiores informaçôes consultar o tópico de Confiabilidade no Checklist de Microserviços de SRE:
+        # https://confluence.bradesco.com.br:8443/pages/viewpage.action?pageId=207620242#id-3.Checklistboaspr%C3%A1ticasmicroservices-5-TimeoutePooldeConex%C3%B5es-Conex%C3%B5esHTTP,JDBC,CWS,FilaeEventStream
+        connectTimeout: ${FEIGN_HTTPCLIENT_CONFIG_DEFAULT_CONNECT_TIMEOUT:7000}
+        readTimeout: ${FEIGN_HTTPCLIENT_CONFIG_DEFAULT_READ_TIMEOUT:7000}
+  okhttp:
+    enabled: true
+  compression:
+    request:
+      min-request-size: 4096
+# FIM - Spring Cloud - Open Feign
+
+user:
+  timezone: ${TZ}
+
+spring:
+  jackson:
+    serialization:
+      # Conversao de data do ObjectMapper
+      WRITE_DATES_AS_TIMESTAMPS: false
+    # Nao serializar objetos nulos
+    default-property-inclusion: NON_NULL
+  # Desabilitar banner do Spring durante o startup
+  main:
+    banner-mode: "off"
+  banner:
+    location: banner.txt
+  profiles:
+    active: ${ENVIRONMENT:@spring.profiles.active@}
+  # INICIO - WEB PROPERTIES
+  # https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.web
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  cloud:
+    discovery:
+      client:
+        composite-indicator:
+          #Desabilitando health discovery composite
+          #https://cloud.spring.io/spring-cloud-commons/multi/multi__spring_cloud_commons_common_abstractions.html#_health_indicator
+          enabled: false
+    httpclientfactories:
+      apache:
+        enabled: false
+      ok:
+        enabled: true
+  # FIM - WEB PROPERTIES
+
+# FIM - CORE PROPERTIES
+
+# INICIO - ACTUATOR PROPERTIES
+# https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.actuator
+management:
+  endpoint:
+    health:
+      enabled: true
+
+      #Especifica os itens adicionais à serem monitorados pelo readiness
+      #https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.endpoints.kubernetes-probes.external-state
+      group:
+        readiness:
+          #CUIDADO: a escolha de realizar verificações externas deve ser realizada com muito cuidado e pode causar efeitos colaterais
+          include: "servicosDependentesHealthIndicator, redis"
+
+      # HABILITA PARA RETORNAR O CAMPO 'DETAILS' AO REQUISITAR /health
+      # https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.endpoints.health
+      show-details: "ALWAYS"
+
+      # HABILITA PROBES - LIVENESS CHECK e READINESS CHECK
+      # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+      probes:
+        enabled: true
+
+  health:
+    # DESABILITA PARA NAO RETORNAR INFORMACOES DO ATRIBUTO 'diskpace' AO REQUISITAR /health
+    # https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html#actuator.endpoints.health.auto-configured-health-indicators
+    diskspace:
+      enabled: false
+
+    # HABILITA LIVENESS CHECK PARA O KUBERNETES
+    # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    livenessState:
+      enabled: true
+
+    # HABILITA READNESS CHECK PARA O KUBERNETES
+    # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+    readinessState:
+      enabled: true
+
+  endpoints:
+    # DESABILITA TODOS OS ENDPOINTS DO ACTUATOR
+    enabled-by-default: false
+    web:
+      # ALTERANDO O PATH DO ACTUATOR DE /actuator/<endpoint-actuator> PARA /<endpoint-actuator>
+      base-path: /
+    exposure:
+      # HABILITA APENAS O ENDPOINT HEALTH
+      include: health
+# FIM - ACTUATOR PROPERTIES
+
+messages:
+  exception: 'classpath:/messages/global'
+
+# INICIO - Configuracao level log
+# https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.core.logging.config
+# Visa facilitar a alteracao do nível do log de forma facilitada para apoiar em troubleshooting
+# Quando houver necessidade de outros logs de packages, criar tais mapeamentos
+# Valores permitidos para LEVEL (TRACE, DEBUG, INFO, WARN, ERROR, ALL ou OFF)
+# Permite também alterar opção JVM. Exemplo: -Dlogging.level.root=INFO
+# Permite também sobreescrever outro arquivo. Exemplo: mapear chaves com outros valores no application-DEV.yml
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    br:
+      com:
+        bradesco: ${LOG_LEVEL_BR_COM_BRADESCO:INFO}
+    okhttp3: ${LOG_LEVEL_OKHTTP3:OFF}
+    org:
+      springframework: ${LOG_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
+# FIM - Configuracao level log
+
+# INICIO - Mapeamento HealthCkeck custom utilizado para verificar a saude de servicos dependentes que retornam UP/DOWN
+# Recomendacao: mapear chave da URL do serviço no arquivo ConfigMap e consumindo uma chave da URL do arquivo aro.env
+# Se desejar, pode sobreescrever as chaves no arquivo yml do profile desejado, exemplo: application-LOCAL.yml
+health-check-endpoint-custom:
+  - url-endpoint-health: ${ENV_SRV_KIT_SPRINGBOOT}/health
+# FIM - Mapeamento HealthCkeck custom utilizado para verificar a saude de servicos dependentes que retornam UP/DOWN

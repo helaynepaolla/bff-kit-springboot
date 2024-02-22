@@ -1,0 +1,62 @@
+base:
+  url: http://localhost
+
+# INICIO - SERVER PROPERTIES
+# https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties.server
+server:
+  port: 8088
+  servlet:
+    contextPath: /
+  parallelism: ${SERVER_PARALELISM:200}
+# FIM - SERVER PROPERTIES
+
+# INICIO - Configuracao level log
+# https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.core.logging.config
+# Visa facilitar a alteracao do nível do log de forma facilitada para apoiar em troubleshooting
+# Quando houver necessidade de outros logs de packages, criar tais mapeamentos
+# Valores permitidos para LEVEL (TRACE, DEBUG, INFO, WARN, ERROR, ALL ou OFF)
+# Permite também alterar opção JVM. Exemplo: -Dlogging.level.root=INFO
+# Permite também sobreescrever outro arquivo. Exemplo: mapear chaves com outros valores no application-DEV.yml
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    br:
+      com:
+        bradesco: ${LOG_LEVEL_BR_COM_BRADESCO:INFO}
+    okhttp3: ${LOG_LEVEL_OKHTTP3:OFF}
+    org:
+      springframework: ${LOG_LEVEL_ORG_SPRINGFRAMEWORK:INFO}
+# FIM - Configuracao level log
+
+# INICIO - Mapeamento Feign de funcionalidades POR AMBIENTE
+feign:
+  funcionalidadeExemplo:
+    name: funcionalidadeExemplo
+    url: ${ENV_SRV_KIT_SPRINGBOOT:http://localhost:8087/srv-kit-springboot}
+    consultaSucesso:
+      path: /v1/sample-get-call
+    consultaErroInfra:
+      path: /v1/sample-error-call
+    consultaErroBusiness:
+      path: /v1/sample-business-error-call
+  livrariaService:
+    name: livrariaService
+    url: ${ENV_SRV_KIT_SPRINGBOOT:http://localhost:8087/srv-kit-springboot}
+    get:
+      path: /v1/consulta-livros
+    getbyId:
+      path: /v1/consulta-livro
+    create:
+      path: /v1/cadastrar-livro
+    delete:
+      path: /v1/deleta-livro
+# FIM - Mapeamento Feign de funcionalidades POR AMBIENTE
+
+#INICIO - Springfox - Swagger
+springfox:
+  documentation:
+    enabled: true
+    swagger:
+      v2:
+        path: /api-docs
+#FIM - Springfox - Swagger
